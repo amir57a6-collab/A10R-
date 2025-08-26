@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="favicon.icon
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A10r - The Professional AI Code Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-landing">
+    <nav class="top-nav">
+        <a href="index.html" class="logo">A10R</a>
+        <div id="user-profile-container"><!-- Populated by script --></div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero container">
+            <div class="hero-grid">
+                <div class="hero-text">
+                    <h1>Build Websites & Code with the Power of AI</h1>
+                    <p>From landing pages to complex components, describe your vision in plain English (and even upload an image) to get production-ready code in seconds.</p>
+                    <a href="builder.html" class="btn btn-primary">Start Building for Free</a>
+                </div>
+                <div class="hero-image">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEidj0qSX44nwTuvNN_eDgbLP-idPhEwcFjgEDG8UySIs6DzkalhxVJX4nWJCwNIC5bzQyw2B3yeYJnycLrRyND8XDIjLkyjEUA8GHFZYDcWNIiMi31yB4n2AlN5nfimrDe9RQHvx6d-lID00xL_NV1COKNssxeHHT_TxadM_zjL-Iia60laUGHePOHBCfjB/s400/AQPTL3pxj-LWe-_Eq9DVXAKt4S6rWMOWsw6HoXqQILvR7LXPC1Q1ZslM_U4pXSPQyHXpAS5jXgC7pTvDS2gTQGQZjZ">
+                </div>
+            </div>
+        </section>
+
+        <!-- Clients Section -->
+        <section class="clients">
+            <div class="container">
+                <h3>TRUSTED BY DEVELOPERS AT COMPANIES LIKE</h3>
+                <div class="client-logos">
+                    <img src="https://logo.clearbit.com/google.com" alt="Google Logo"><img src="https://logo.clearbit.com/microsoft.com" alt="Microsoft Logo"><img src="https://logo.clearbit.com/github.com" alt="GitHub Logo"><img src="https://logo.clearbit.com/amazon.com" alt="Amazon Logo"><img src="https://logo.clearbit.com/meta.com" alt="Meta Logo">
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <div class="section-header">
+                    <h2>A Smarter Way to Code</h2>
+                    <p>A10r is packed with features designed to accelerate your development workflow.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card"><div class="feature-icon">📝</div><h3>Multi-Language Support</h3><p>Generate code in HTML/CSS/JS, React, PHP, Vue, Python, and more. Just select your target language.</p></div>
+                    <div class="feature-card"><div class="feature-icon">🖼️</div><h3>Visual Prompting</h3><p>Upload a screenshot or mockup. Our AI will analyze the image to build code that matches the design.</p></div>
+                    <div class="feature-card"><div class="feature-icon">☁️</div><h3>Cloud-Saved History</h3><p>Sign up for a free account to automatically save every piece of code you generate to your personal profile.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials">
+            <div class="container"><div class="testimonial-card"><p>"A10r has fundamentally changed how I prototype. I can go from a simple idea to a fully functional component in under a minute. It's an indispensable tool."</p><span class="testimonial-author">- Alex Johnson, Lead Frontend Developer</span></div></div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq">
+            <div class="container">
+                <div class="section-header"><h2>Frequently Asked Questions</h2></div>
+                <div class="faq-accordion">
+                    <div class="faq-item"><div class="faq-question"><span>How does the image upload feature work?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><p>We use a multi-modal AI model (Gemini) that can understand both text and images. When you upload an image, it's sent along with your text prompt to the AI, which uses it as a powerful visual guide to generate more accurate code.</p></div></div>
+                    <div class="faq-item"><div class="faq-question"><span>Is my generated code saved securely?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><p>Yes. When you are signed in, your code history is saved to your personal account using Google's secure Firebase platform. Only you can access your creation history.</p></div></div>
+                    <div class="faq-item"><div class="faq-question"><span>Can I use the generated code in commercial projects?</span><span class="faq-toggle">+</span></div><div class="faq-answer"><p>Absolutely. You own the code you generate with A10r. Feel free to use it in any personal or commercial projects without attribution.</p></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA Section -->
+        <section class="cta-section"><div class="container"><h2>Ready to Build Faster?</h2><p>Stop wrestling with boilerplate. Start creating with the power of AI.</p><a href="builder.html" class="btn btn-primary">Start Building Now</a></div></section>
+    </main>
+    <footer class="footer"><div class="footer-links"><a href="about.html">About</a><a href="privacy.html">Privacy Policy</a><a href="disclaimer.html">Disclaimer</a></div><p>&copy; 2025 A10r. All Rights Reserved.</p></footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyDQnb4lMOtBpUtUqi9GxZQYM2BQKcWg5yY", authDomain: "a10r-a75a3.firebaseapp.com", projectId: "a10r-a75a3", storageBucket: "a10r-a75a3.appspot.com", messagingSenderId: "991051935918", appId: "1:991051935918:web:a2f6380c3c8684f6bcbd3f" };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        auth.onAuthStateChanged(user => { const userProfileContainer = document.getElementById('user-profile-container'); if (user) { userProfileContainer.innerHTML = `<a href="profile.html">Profile</a>`; } else { userProfileContainer.innerHTML = `<a href="login.html">Sign In / Sign Up</a>`; } });
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => { const question = item.querySelector('.faq-question'); question.addEventListener('click', () => { const currentlyActive = document.querySelector('.faq-item.active'); if (currentlyActive && currentlyActive !== item) { currentlyActive.classList.remove('active'); } item.classList.toggle('active'); }); });
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  link rel="icon" href="favicon.icon
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - A10r</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <style>
+        .page-content { padding: 3rem 0; }
+        .page-content h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .page-content h2 { font-size: 1.75rem; color: var(--primary-color); margin-top: 2.5rem; }
+        .page-content p { font-size: 1.1rem; line-height: 1.7; }
+    </style>
+</head>
+<!-- This class gives it the clean white background like the landing page -->
+<body class="page-landing">
+    <nav class="top-nav">
+        <a href="index.html" class="logo">A10r</a>
+        <div id="user-profile-container"><!-- Populated by script --></div>
+    </nav>
+
+    <main class="main-content container page-content">
+        <h1>About A10r</h1>
+        <p>A10r was born from a simple idea: development should be about creativity, not repetitive boilerplate. We believe that the power of artificial intelligence can serve as the ultimate developer's assistant, accelerating workflows and turning ideas into code at the speed of thought.</p>
+
+        <h2>Our Mission</h2>
+        <p>Our mission is to empower developers, designers, and creators of all skill levels to build for the web faster than ever before. By providing an intuitive, powerful, and versatile AI code generation platform, we aim to reduce development friction and allow more time for innovation and creating amazing user experiences.</p>
+
+        <h2>Our Technology</h2>
+        <p>We leverage Google's state-of-the-art Gemini models, which are capable of understanding complex, multi-modal prompts—including both text and images. This allows A10r to interpret not just what you say, but what you see, generating code that is both functionally robust and aesthetically aligned with your vision. From a single HTML file to complex React components, our platform is built to handle the diverse needs of modern web development.</p>
+        
+        <p>Thank you for being a part of our journey. Let's build the future, together.</p>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="about.html">About</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="disclaimer.html">Disclaimer</a>
+        </div>
+        <p>&copy; 2025 A10r. All Rights Reserved.</p>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script>
+        // This script ensures the "Profile" or "Sign In" link works correctly
+        const firebaseConfig = { apiKey: "AIzaSyDQnb4lMOtBpUtUqi9GxZQYM2BQKcWg5yY", authDomain: "a10r-a75a3.firebaseapp.com", projectId: "a10r-a75a3", storageBucket: "a10r-a75a3.appspot.com", messagingSenderId: "991051935918", appId: "1:991051935918:web:a2f6380c3c8684f6bcbd3f" };
+        firebase.initializeApp(firebaseConfig);
+        firebase.auth().onAuthStateChanged(user => {
+            const userProfileContainer = document.getElementById('user-profile-container');
+            if (user) { userProfileContainer.innerHTML = `<a href="profile.html">Profile</a>`; } 
+            else { userProfileContainer.innerHTML = `<a href="login.html">Sign In / Sign Up</a>`; }
+        });
+    </script>
+</body>
+</html>

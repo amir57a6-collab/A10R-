@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    link rel="icon" href="favicon.icon
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile - A10r</title>
+    <!-- We will use the existing style.css which already has the necessary styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-app">
+
+    <nav class="top-nav">
+        <a href="index.html" class="logo">A10R</a>
+        <div id="user-profile-container"><!-- This will be populated by the script --></div>
+    </nav>
+
+    <main class="main-content container">
+        <div class="profile-header">
+            <h1>Your Creation History</h1>
+            <button id="signout-btn" class="btn">Sign Out</button>
+        </div>
+        
+        <!-- This container will be filled with the history cards -->
+        <div id="history-container">
+            <p id="loading-message">Loading your history...</p>
+        </div>
+    </main>
+
+    <!-- This is the pop-up modal for the "Full Preview" feature -->
+    <div id="preview-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000;">
+        <span id="modal-close-btn" style="position: absolute; top: 15px; right: 35px; color: #fff; font-size: 40px; cursor: pointer;">&times;</span>
+        <iframe id="modal-iframe" style="width: 100%; height: 100%; border: none; background: #fff;"></iframe>
+    </div>
+
+    <!-- Firebase SDKs - These are required on every page that interacts with Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    
+    <script>
+        // --- 1. INITIALIZE FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQnb4lMOtBpUtUqi9GxZQYM2BQKcWg5yY",
+            authDomain: "a10r-a75a3.firebaseapp.com",
+            projectId: "a10r-a75a3",
+            storageBucket: "a10r-a75a3.appspot.com",
+            messagingSenderId: "991051935918",
+            appId: "1:991051935918:web:a2f6380c3c8684f6bcbd3f"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // --- 2. GET REFERENCES TO HTML ELEMENTS ---
+        const historyContainer = document.getElementById('history-container');
+        const loadingMessage = document.getElementById('loading-message');
+        const signoutBtn = document.getElementById('signout-btn');
+        const userProfileContainer = document.getElementById('user-profile-container');
+        const previewModal = document.getElementById('preview-modal');
+        const modalIframe = document.getElementById('modal-iframe');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        // --- 3. CHECK USER LOGIN STATUS ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // If the user is logged in:
+                // a) Show the "Profile" link in the navigation bar.
+                userProfileContainer.innerHTML = `<a href="profile.html">Profile</a>`;
+                // b) Call the function to load their history from the database.
+                loadUserHistory(user.uid);
+            } else {
+                // If the user is NOT logged in, they shouldn't be on this page.
+                // Redirect them to the homepage.
+                window.location.href = 'index.html';
+            }
+        });
+
+        // --- 4. FUNCTION TO LOAD AND DISPLAY HISTORY ---
+        async function loadUserHistory(userId) {
+            try {
+                // Create a reference to the user's specific history collection in Firestore,
+                // ordered by the most recently created items first.
+                const historyCollectionRef = db.collection('users').doc(userId).collection('history').orderBy('createdAt', 'desc');
+                
+                // Fetch the documents from that collection.
+                const snapshot = await historyCollectionRef.get();
+
+                // Check if there are any documents.
+                if (snapshot.empty) {
+                    // If no history exists, display a friendly message.
+                    loadingMessage.innerHTML = 'You haven\'t created any code yet. <a href="builder.html" style="color: var(--primary-color);">Start building!</a>';
+                    return;
+                }
+
+                // If history exists, clear the "Loading..." message.
+                historyContainer.innerHTML = '';
+
+                // Loop through each document in the snapshot.
+                snapshot.forEach(doc => {
+                    const historyItem = doc.data(); // Get the data from the document (prompt, code, etc.)
+
+                    // Create a new card element (a div) for this history item.
+                    const card = document.createElement('div');
+                    card.className = 'history-item'; // This class is styled in style.css
+
+                    // Get the date and language for display.
+                    const formattedDate = historyItem.createdAt ? historyItem.createdAt.toDate().toLocaleString() : 'Date unavailable';
+                    const language = historyItem.language ? historyItem.language.toUpperCase() : 'CODE';
+
+                    // Fill the card with the history item's information and action buttons.
+                    card.innerHTML = `
+                        <p class="history-item-prompt">${historyItem.prompt || 'No prompt provided.'}</p>
+                        <span class="history-item-meta">${language} - ${formattedDate}</span>
+                        <div class="history-item-actions">
+                            <button class="btn btn-preview">Preview</button>
+                            <button class="btn btn-copy">Copy Code</button>
+                            <button class="btn btn-download">Download</button>
+                        </div>
+                    `;
+
+                    // Add the newly created card to the page.
+                    historyContainer.appendChild(card);
+                    
+                    // Make the buttons on this new card functional.
+                    card.querySelector('.btn-preview').addEventListener('click', () => handlePreview(historyItem));
+                    card.querySelector('.btn-copy').addEventListener('click', () => handleCopy(historyItem));
+                    card.querySelector('.btn-download').addEventListener('click', () => handleDownload(historyItem));
+                });
+
+            } catch (error) {
+                // If there's an error fetching from the database (e.g., permissions issue),
+                // show an error message.
+                console.error("Error loading history:", error);
+                loadingMessage.innerHTML = '<p style="color: red;">Could not load your history. Please check your connection or try again later.</p>';
+            }
+        }
+        
+        // --- 5. HELPER FUNCTIONS FOR THE BUTTONS ---
+        function handlePreview(item) {
+            if (item.language !== 'html') {
+                alert('Full preview is only available for HTML output.');
+                return;
+            }
+            modalIframe.srcdoc = item.code;
+            previewModal.style.display = 'block';
+        }
+
+        function handleCopy(item) {
+            navigator.clipboard.writeText(item.code).then(
+                () => alert("Code copied to clipboard!"),
+                () => alert("Failed to copy code.")
+            );
+        }
+
+        function handleDownload(item) {
+            const fileExtensions = { html: '.html', react: '.jsx', php: '.php', vue: '.vue', python: '.py' };
+            const extension = fileExtensions[item.language] || '.txt';
+            const blob = new Blob([item.code], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `a10r-code${extension}`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+        
+        function signOutUser() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        }
+
+        // --- 6. ATTACH EVENT LISTENERS ---
+        signoutBtn.addEventListener('click', signOutUser);
+        modalCloseBtn.addEventListener('click', () => {
+            previewModal.style.display = 'none';
+        });
+
+    </script>
+</body>
+</html>

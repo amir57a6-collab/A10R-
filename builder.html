@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    link rel="icon" href="favicon.icon
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Builder - A10r</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-app">
+    <nav class="top-nav">
+        <a href="index.html" class="logo">A10R</a>
+        <div id="user-profile-container"><!-- Populated --></div>
+    </nav>
+    <main class="main-content builder-grid">
+        <section class="builder-panel controls-panel">
+            <div>
+                <h2>AI Code Generator</h2><p>Describe your component, function, or website. Upload a reference image for better results.</p>
+                <div class="prompt-container"><textarea id="prompt-input" placeholder="e.g., A React login form component with email and password fields..."></textarea><label for="file-upload" class="upload-btn" title="Upload an image reference">+</label><input type="file" id="file-upload" accept="image/*" style="display: none;"><span id="file-name-display"></span></div>
+                <div class="form-group"><label for="language-select">Select Language</label><select id="language-select" class="language-select"><option value="html">HTML, CSS, JS (Single File)</option><option value="react">React Component (JSX)</option><option value="php">PHP Script</option><option value="vue">Vue Component</option><option value="python">Python Script</option></select></div>
+            </div>
+            <button id="generate-btn" class="btn btn-primary" style="width: 100%; margin-top: auto;">Generate Code</button>
+        </section>
+        <section class="builder-panel output-panel">
+            <div class="output-header"><h2>Output</h2><div class="code-actions"><button id="copy-btn" class="btn">Copy</button><button id="download-btn" class="btn">Download</button><button id="full-preview-btn" class="btn">Full Preview</button></div></div>
+            <pre id="code-output-container">Your code will appear here...</pre>
+        </section>
+    </main>
+    <div id="preview-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000;"><span id="modal-close-btn" style="position: absolute; top: 15px; right: 35px; color: #fff; font-size: 40px; cursor: pointer;">&times;</span><iframe id="modal-iframe" style="width: 100%; height: 100%; border: none; background: #fff;"></iframe></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script>
+        // All JavaScript for this page is correct and does not need to be pasted again.
+        // Just ensure the body tag is correct.
+        const firebaseConfig = { apiKey: "AIzaSyDQnb4lMOtBpUtUqi9GxZQYM2BQKcWg5yY", authDomain: "a10r-a75a3.firebaseapp.com", projectId: "a10r-a75a3", storageBucket: "a10r-a75a3.appspot.com", messagingSenderId: "991051935918", appId: "1:991051935918:web:a2f6380c3c8684f6bcbd3f" };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(); const db = firebase.firestore(); const generateBtn = document.getElementById('generate-btn'); const promptInput = document.getElementById('prompt-input'); const codeOutputContainer = document.getElementById('code-output-container'); const fileUploadInput = document.getElementById('file-upload'); const fileNameDisplay = document.getElementById('file-name-display'); const languageSelect = document.getElementById('language-select'); const copyBtn = document.getElementById('copy-btn'); const downloadBtn = document.getElementById('download-btn'); const fullPreviewBtn = document.getElementById('full-preview-btn'); const previewModal = document.getElementById('preview-modal'); const modalIframe = document.getElementById('modal-iframe'); const modalCloseBtn = document.getElementById('modal-close-btn'); let generatedCode = ""; let uploadedFile = null; auth.onAuthStateChanged(user => { const userProfileContainer = document.getElementById('user-profile-container'); if (user) { userProfileContainer.innerHTML = `<a href="profile.html">Profile</a>`; } else { userProfileContainer.innerHTML = `<a href="login.html">Sign In / Sign Up</a>`; } }); fileUploadInput.addEventListener('change', (event) => { const file = event.target.files[0]; if (!file) { uploadedFile = null; fileNameDisplay.textContent = ''; return; } if (!file.type.startsWith('image/')) { alert('Please upload an image file.'); return; } const reader = new FileReader(); reader.onloadend = () => { const dataUrl = reader.result; uploadedFile = { mimeType: dataUrl.substring(dataUrl.indexOf(':') + 1, dataUrl.indexOf(';')), base64Data: dataUrl.substring(dataUrl.indexOf(',') + 1) }; fileNameDisplay.textContent = `${file.name}`; }; reader.readAsDataURL(file); }); async function generateWebsite() { const userPrompt = promptInput.value; const selectedLanguage = languageSelect.value; if (!userPrompt.trim()) { alert('Please enter a prompt.'); return; } setLoadingState(true); const API_KEY = "AIzaSyDa-eYXY5iu9G9-uyAdKPokk2rE_Jfo2Bw"; const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`; const languageInstructions = { html: "You are an expert web developer. Create a complete, single HTML file. It must include all HTML, CSS in a <style> tag, and JavaScript in a <script> tag. The code must be modern and responsive. Only output the raw HTML code.", react: "You are an expert React developer. Create a single, functional React component file (.jsx). Use hooks for state and effects. Do not include any extra explanations. Only output the raw JSX code.", php: "You are an expert PHP developer. Create a complete and secure PHP script. Comment your code where necessary. Only output the raw PHP code, starting with <?php.", vue: "You are an expert Vue.js developer. Create a single-file Vue component (.vue). Include the <template>, <script>, and <style> sections. Only output the raw code for the .vue file.", python: "You are an expert Python developer. Create a clean, efficient, and well-commented Python script (.py). Follow PEP 8 guidelines. Only output the raw Python code." }; const systemInstruction = languageInstructions[selectedLanguage] || languageInstructions['html']; const fullPrompt = `${systemInstruction}\n\nA user has provided a text prompt and possibly an image for reference. Generate the code based on their request.\n\nUser's Request: "${userPrompt}"`; const parts = [{ "text": fullPrompt }]; if (uploadedFile) { parts.push({ "inline_data": { "mime_type": uploadedFile.mimeType, "data": uploadedFile.base64Data }}); } const requestBody = { "contents": [{ "parts": parts }] }; try { const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) }); const data = await response.json(); let rawCode = data.candidates[0].content.parts[0].text; rawCode = rawCode.replace(/^```[a-z]*\n|```$/g, ""); generatedCode = rawCode.trim(); codeOutputContainer.textContent = generatedCode; const user = auth.currentUser; if (user) { await db.collection('users').doc(user.uid).collection('history').add({ prompt: userPrompt, code: generatedCode, language: selectedLanguage, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); } } catch (error) { codeOutputContainer.textContent = `Error: ${error.message}`; } finally { setLoadingState(false); uploadedFile = null; fileNameDisplay.textContent = ''; fileUploadInput.value = ''; } }
+        function setLoadingState(isLoading) { generateBtn.disabled = isLoading; generateBtn.textContent = isLoading ? "Generating..." : "Generate Code"; }
+        function openFullScreenPreview() { if (languageSelect.value !== 'html') { alert('Full preview is only available for HTML output.'); return; } if (!generatedCode) return; modalIframe.srcdoc = generatedCode; previewModal.style.display = 'block'; }
+        function copyCode() { if (!generatedCode) return; navigator.clipboard.writeText(generatedCode).then(() => alert("Code copied!"), () => alert("Failed to copy.")); }
+        function downloadCode() { if (!generatedCode) return; const fileExtensions = { html: '.html', react: '.jsx', php: '.php', vue: '.vue', python: '.py' }; const extension = fileExtensions[languageSelect.value] || '.txt'; const blob = new Blob([generatedCode], { type: 'text/plain' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `a10r-code${extension}`; a.click(); URL.revokeObjectURL(a.href); }
+        generateBtn.addEventListener('click', generateWebsite);
+        fullPreviewBtn.addEventListener('click', openFullScreenPreview);
+        modalCloseBtn.addEventListener('click', () => previewModal.style.display = 'none');
+        copyBtn.addEventListener('click', copyCode);
+        downloadBtn.addEventListener('click', downloadCode);
+    </script>
+</body>
+</html>
